@@ -1,0 +1,6 @@
+[submodule "setAssociative_cache_mapping"]
+	path = setAssociative_cache_mapping
+	url = https://github.com/priyanshu029jain/setAssociative_cache_mapping.git
+[submodule "register_file"]
+	path = register_file
+	url = https://github.com/priyanshu029jain/register_file.git
