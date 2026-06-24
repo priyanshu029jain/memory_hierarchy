@@ -4,3 +4,9 @@
 [submodule "register_file"]
 	path = register_file
 	url = https://github.com/priyanshu029jain/register_file.git
+[submodule "FIFO"]
+	path = FIFO
+	url = https://github.com/priyanshu029jain/FIFO.git
+[submodule "RAM"]
+	path = RAM
+	url = https://github.com/priyanshu029jain/RAM.git
