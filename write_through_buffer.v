@@ -4,26 +4,26 @@ module write_buffer (
 
     //write signals
     input wire wr,
-    input wire [7:0] data_in,
-    input wire [3:0] addr_in,
+    input wire [15:0] data_in,
+    input wire [15:0]addr_in,
     output wire full,
 
     //read signals
     input wire rd,
-    output wire [7:0] data_out,
-    output wire [3:0] addr_out,
+    output wire [15:0]data_out,
+    output wire [15:0] addr_out,
     output wire empty,
 
     //snooping signals
     input wire snoop_en,
-    input wire snoop_addr,
-    output wire snoop_data,
+    input wire [15:0]snoop_addr,
+    output wire [15:0] snoop_data,
     output reg snoop_hit
   );
 
   //declaration of memory array and pointers
-  reg [7:0] data_array [0:15];
-  reg [3:0] addr_array [0:15];
+  reg [15:0] data_array [0:15];
+  reg [15:0] addr_array [0:15];
   reg [4:0] rd_ptr, wr_ptr;
 
   //full and empty flags condition
@@ -40,7 +40,7 @@ module write_buffer (
 
   //task that check the repeated word
   task automatic double_write;
-    input [3:0] addr;
+    input [15:0] addr;
     output found_hit;
     output [3:0] found_ptr;
     reg [4:0] current_ptr;
@@ -72,7 +72,7 @@ module write_buffer (
     end
   end
 
-  assign snoop_data = (snoop_hit && snoop_en) ? data_array[snoop_ptr] : 8'h00;
+  assign snoop_data = (snoop_hit && snoop_en) ? data_array[snoop_ptr] : 16'h0000;
 
   //FIFO and pointer updatetion logic
   always @(posedge clk)

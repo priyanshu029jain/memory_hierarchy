@@ -1,7 +1,7 @@
 module register_bank # (
-    parameter DATA_WIDTH = 8,
-    parameter ADDR_WIDTH = 3,
-    parameter BANK_SIZE = 8
+    parameter DATA_WIDTH = 16,
+    parameter ADDR_WIDTH = 4,
+    parameter BANK_SIZE = 16
   ) (
     input wire clk,
     input wire rst_n,
