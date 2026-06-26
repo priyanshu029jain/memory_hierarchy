@@ -4,14 +4,14 @@ module write_buffer (
 
     //write signals
     input wire wr,
-    input wire [15:0] data_in,
+    input wire [63:0] data_in,
     input wire [15:0]addr_in,
     output wire full,
 
     //read signals
     input wire rd,
-    output wire [15:0]data_out,
-    output wire [15:0] addr_out,
+    output wire [63:0]data_out,
+    output wire [13:0] addr_out,
     output wire empty,
 
     //snooping signals
@@ -22,8 +22,8 @@ module write_buffer (
   );
 
   //declaration of memory array and pointers
-  reg [15:0] data_array [0:15];
-  reg [15:0] addr_array [0:15];
+  reg [63:0] data_array [0:15]; //whole block
+  reg [13:0] addr_array [0:15]; // block address
   reg [4:0] rd_ptr, wr_ptr;
 
   //full and empty flags condition
@@ -40,7 +40,7 @@ module write_buffer (
 
   //task that check the repeated word
   task automatic double_write;
-    input [15:0] addr;
+    input [13:0] addr;
     output found_hit;
     output [3:0] found_ptr;
     reg [4:0] current_ptr;
@@ -64,17 +64,21 @@ module write_buffer (
   endtask
 
   // write forwarding the data 
+  wire [1:0] snoop_offset = snoop_addr[1:0];
+
   always @(*)
   begin :snooping
     if(!empty && snoop_en)
     begin
-      double_write (snoop_addr, snoop_hit, snoop_ptr);
+      double_write (snoop_addr[15:2], snoop_hit, snoop_ptr);
     end
   end
 
-  assign snoop_data = (snoop_hit && snoop_en) ? data_array[snoop_ptr] : 16'h0000;
+  assign snoop_data = (snoop_hit && snoop_en) ? data_array[snoop_ptr][16*snoop_offset +: 16] : 16'h0000;
 
   //FIFO and pointer updatetion logic
+  reg [1:0] offset;
+
   always @(posedge clk)
   begin
 
@@ -92,13 +96,17 @@ module write_buffer (
       begin : enqueue
         //write merging 
         double_write(addr_in, rewrite_hit, rewrite_ptr);
+        offset <= addr_in[1:0];
 
+        //only update the targeted word
         if(rewrite_hit) begin
-          data_array[rewrite_ptr] <= data_in;
+          data_array[rewrite_ptr][16* offset +: 16] <= data_in[16* offset +: 16];
         end
+
+        //push the whole block
         else begin
         data_array[wr_ptr[3:0]] <= data_in;
-        addr_array[wr_ptr[3:0]] <= data_in;
+        addr_array[wr_ptr[3:0]] <= addr_in[16:2];
         wr_ptr <= wr_ptr + 1'b1;
         end
       end
