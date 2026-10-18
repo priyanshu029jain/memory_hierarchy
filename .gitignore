@@ -1,5 +1,3 @@
-L1_cache.v
-CPU.v
 *.mem
 *.vcd
 *.vvp
